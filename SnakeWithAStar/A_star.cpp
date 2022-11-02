@@ -55,6 +55,21 @@ namespace A_Star {
 
             for (auto& neighbor : current->neighbors) {
                 if (!neighbor->bInvalid) {
+                    /*tentScore = current->g + 1 + h(neighbor->coords, finish->coords);
+                    if (!neighbor->bInOpen || !neighbor->bInClosed) {
+                        neighbor->bInOpen = true;
+                        open.push(neighbor);
+                    }
+                    else if ((neighbor->bInOpen || neighbor->bInClosed) && neighbor->f > tentScore) {
+                        neighbor->f = tentScore;
+                        neighbor->g = current->g + 1;
+                        neighbor->parent = current;
+                        if (neighbor->bInClosed) {
+                            neighbor->bInClosed = false;
+                            neighbor->bInOpen = true;
+                            open.push(neighbor);
+                        }
+                    }*/
                     tentScore = current->g + 1;
                     if (tentScore < neighbor->g) {
                         neighbor->parent = current;

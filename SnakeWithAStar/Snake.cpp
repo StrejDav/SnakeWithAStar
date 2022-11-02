@@ -8,7 +8,7 @@ bool operator==(COORD a, COORD b) {
 * Initialize the console with the basic setup of width, height and disables resizing
 * Generates first part of snake and food
 */
-Snake::Snake(const short& width, const short& height, const unsigned int& period = 500) {
+Snake::Snake(const short& width, const short& height, const unsigned int& numberOfObstacles, const unsigned int& period) {
     HWND consoleWindow = GetConsoleWindow();
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -34,6 +34,8 @@ Snake::Snake(const short& width, const short& height, const unsigned int& period
     SetConsoleCursorPosition(hConsole, snake.front());
     WriteConsole(hConsole, (char*)"#", 1, NULL, NULL);
 
+    generateObstacles(50);
+
     this->period = period;
 
     start = std::chrono::steady_clock::now();
@@ -50,7 +52,7 @@ const void Snake::move(const char& direction) {
 * Takes care of generating the snake, checking if it collided with the walls or itself, checking if the food was eaten and generates new food. Also draws the snake
 * TODO: Should probably separate into different functions
 */
-const void Snake::render(bool* cont, bool* ateFood = nullptr, bool* rendered = nullptr) {
+const void Snake::render(bool* cont, bool* ateFood, bool* rendered) {
     now = std::chrono::steady_clock::now();
 
     // Checks if the required period defined in ms already passed
@@ -122,7 +124,7 @@ const void Snake::gameLoop() {
         else if (GetKeyState(VK_LEFT) & 0x8000) dir = LEFT;
         else if (GetKeyState(VK_RIGHT) & 0x8000) dir = RIGHT;
         move(dir);
-        render(&cont, &ate, &rend);
+        render(&cont, &rend, &ate);
     }
 
     system("cls");
@@ -139,8 +141,10 @@ bool Snake::collisionCheck() {
     if (head.X >= winDimensions.X || head.Y >= winDimensions.Y || head.X < 0 || head.Y < 0) return true;
 
     // Checks for collisions with itself only if the snake has more than 3 parts, since 3-part snake cannot collide with itself
-    else if (snake.size() > 3) return std::any_of(snake.begin() + 1, snake.end(), [head](COORD i) { return head == i; });
-    return false;
+    if (snake.size() > 3) return std::any_of(snake.begin() + 1, snake.end(), [head](COORD i) { return head == i; });
+
+    // Checks for collisions with obstacles
+    return std::any_of(obstacles.begin(), obstacles.end(), [head](COORD i) { return head == i; });
 }
 
 /**
@@ -170,11 +174,44 @@ const void Snake::generateFood() {
     SetConsoleTextAttribute(hConsole, 15);
 }
 
+const void Snake::generateObstacles(const int& numOfObstacles) {
+    for (int i = 0; i < numOfObstacles; i++) {
+        short x, y;
+        COORD obstCoord;
+        do {
+            // Defines random device and distributions
+            std::random_device rd;
+            std::mt19937 gen(rd());
+
+            std::uniform_int_distribution<> xDistr(0, winDimensions.X - 1);
+            std::uniform_int_distribution<> yDistr(0, winDimensions.Y - 1);
+
+            x = xDistr(gen);
+            y = yDistr(gen);
+            obstCoord = { x, y };
+        } while (snake.front() == obstCoord || food == obstCoord || std::any_of(obstacles.begin(), obstacles.end(), [obstCoord](COORD i) { return i == obstCoord; }));
+
+        SetConsoleTextAttribute(hConsole, 9); // 12 = green
+        SetConsoleCursorPosition(hConsole, obstCoord);
+        WriteConsole(hConsole, (char*)"O", 1, NULL, NULL);
+        SetConsoleTextAttribute(hConsole, 15);
+
+        obstacles.push_back(obstCoord);
+    }
+}
+
 /**
 * Returns copy of snake deque
 */
 std::deque<COORD> Snake::getSnakeCoords() {
     return snake;
+}
+
+/**
+* Returns copy of obstacles vector
+*/
+std::vector<COORD> Snake::getObstacles() {
+    return obstacles;
 }
 
 /**

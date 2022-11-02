@@ -5,7 +5,7 @@
 /**
 * Generates nodes for each console field and will push neighbors to each node
 */
-AutoPlay::AutoPlay(const short& width, const short& height, const unsigned int& period) {
+AutoPlay::AutoPlay(const short& width, const short& height, const unsigned int& numberOfObstacles, const unsigned int& period) {
     this->width = width;
     this->height = height;
     gameplanArea = width * height;
@@ -26,8 +26,12 @@ AutoPlay::AutoPlay(const short& width, const short& height, const unsigned int& 
         if (i % width != width - 1)     currentNode->neighbors.push_back(&gameplan[i + 1]);     // right neighbour
     }
 
-    snake = new Snake(width, height, period);
+    snake = new Snake(width, height, numberOfObstacles, period);
     hConsole = snake->getConsoleHandle();
+    std::vector<COORD> obstacles = snake->getObstacles();
+    for (const auto& i : obstacles) {
+        deleteNeighboursFromNodes(i);
+    }
 }
 
 /**

@@ -15,7 +15,7 @@ private:
     const HANDLE* hConsole;
 
 public:
-    AutoPlay(const short& width, const short& height, const unsigned int& period);
+    AutoPlay(const short& width, const short& height, const unsigned int& numberOfObstacles, const unsigned int& period);
     ~AutoPlay();
     void deleteNeighboursFromNodes(const COORD& coordsToDelete);
     void addNeighbourToGameplan(const COORD& coordsToAdd);

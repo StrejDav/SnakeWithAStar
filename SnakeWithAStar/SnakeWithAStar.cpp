@@ -7,7 +7,6 @@
 
 int main()
 {
-
     // Asks for game mode
     std::string strGameMode;
     int gameMode = 1;
@@ -25,16 +24,16 @@ int main()
     // Asks for parameters for the game
     std::string inserted;
     std::stringstream ssin;
-    std::string arguments[3];
-    unsigned int width, height, period;
+    std::string arguments[4];
+    unsigned int width, height, period, numberOfObstacles;
 
-    std::cout << "Please choose window width and height and period between movements (in ms) in the following manner: width height perid\ni. e. 20 20 250\n";
+    std::cout << "Please choose window width and height and period between movements (in ms) in the following manner: width height numberOfObstacles period\ni. e. 20 20 10 250\n";
     while (true) {
         std::getline(std::cin, inserted);
 
         int i = 0;
         ssin = std::stringstream(inserted);
-        while (ssin.good() && i < 4)
+        while (ssin.good() && i < 5)
         {
             ssin >> arguments[i];
             i++;
@@ -42,7 +41,8 @@ int main()
         try {
             width = std::stoi(arguments[0]);
             height = std::stoi(arguments[1]);
-            period = std::stoi(arguments[2]);
+            numberOfObstacles = std::stoi(arguments[2]);
+            period = std::stoi(arguments[3]);
             break;
         }
         catch (const std::exception& e) {
@@ -75,14 +75,14 @@ int main()
         }
 
         system("cls");
-        AutoPlay play(width, height, period);
+        AutoPlay play(width, height, numberOfObstacles, period);
         play.playGame(heuristic);
     }
     
     // Player driven game
     else if (gameMode == 2) {
         system("cls");
-        Snake snake(width, height, period);
+        Snake snake(width, height, numberOfObstacles, period);
         snake.gameLoop();
     }
 

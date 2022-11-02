@@ -18,7 +18,7 @@ class Snake
 {
 private:
     std::deque<COORD> snake;
-    std::vector<COORD> obstacle;
+    std::vector<COORD> obstacles;
     COORD food;
     COORD winDimensions;
     char direction;
@@ -30,11 +30,11 @@ private:
 
     bool collisionCheck();
     const void generateFood();
-
+    const void generateObstacles(const int& numOfObstacles);
 public:
-    Snake(const short& width, const short& height, const unsigned int& period);
+    Snake(const short& width, const short& height, const unsigned int& numberOfObstacles = 0, const unsigned int& period = 500);
     const void move(const char& direction);
-    const void render(bool* cont, bool* ateFood, bool* rendered);
+    const void render(bool* cont, bool* ateFood = nullptr, bool* rendered = nullptr);
     const void gameLoop();
 
     std::deque<COORD> getSnakeCoords();
